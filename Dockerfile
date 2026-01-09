@@ -18,4 +18,4 @@ RUN uv pip install --system -r pyproject.toml
 RUN mkdir -p temp
 
 # Run the bot
-CMD ["python", "discord_boil_bot.py"]
+CMD ["python", "main.py"]

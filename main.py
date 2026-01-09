@@ -6,6 +6,8 @@ import numpy as np
 import os
 import asyncio
 import logging
+import shutil
+import glob
 
 # Setup logging so it shows in Docker
 logging.basicConfig(
@@ -19,10 +21,10 @@ intents = discord.Intents.all()  # Use all intents to ensure on_ready fires
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Your bot token (from environment variable or hardcoded)
-BOT_TOKEN = os.getenv('BOT_TOKEN')
+BOT_TOKEN = os.getenv('BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 
 # Path to your template GIF with green square
-TEMPLATE_PATH = 'data/template_boiling.gif'
+TEMPLATE_PATH = 'template_boiling.gif'
 
 
 def replace_green_square_in_gif(template_path, image_path, output_path,
@@ -269,14 +271,37 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
     if member is None:
         member = interaction.user
 
-    logger.info(f"Boil request: {interaction.user.name} wants to boil {member.name}'s avatar")
+    # Use display_name or global_name for logging to avoid discriminator issues
+    requester_name = interaction.user.display_name or interaction.user.name
+    target_name = member.display_name or member.name
+    logger.info(f"Boil request: {requester_name} wants to boil {target_name}'s avatar")
 
     # Defer the response since this might take a moment
     await interaction.response.defer()
 
     try:
-        # Create temp directory if it doesn't exist
+        # Create cache directory if it doesn't exist
+        os.makedirs('cache', exist_ok=True)
         os.makedirs('temp', exist_ok=True)
+
+        # Get avatar hash for cache key
+        avatar_hash = member.display_avatar.key
+        cache_file = f'cache/{member.id}_{avatar_hash}.gif'
+
+        # Check if cached version exists
+        if os.path.exists(cache_file):
+            logger.info(f"Using cached GIF for {target_name} (hash: {avatar_hash})")
+            file_size = os.path.getsize(cache_file)
+            file_size_mb = file_size / (1024 * 1024)
+
+            await interaction.followup.send(
+                f'"hey {member.mention}" and they\'re boiled 😭😭😭😭',
+                file=discord.File(cache_file)
+            )
+            return
+
+        # Not cached - process new avatar
+        logger.info(f"No cache found, processing new avatar for {target_name}")
 
         # Get the user's avatar URL (highest quality)
         avatar_url = member.display_avatar.url
@@ -324,6 +349,21 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
                 pass
             return
 
+        # Save to cache
+        import shutil
+        shutil.copy(temp_output, cache_file)
+        logger.info(f"Saved to cache: {cache_file}")
+
+        # Clean up old cached versions for this user (different avatar hashes)
+        import glob
+        for old_cache in glob.glob(f'cache/{member.id}_*.gif'):
+            if old_cache != cache_file:
+                try:
+                    os.remove(old_cache)
+                    logger.info(f"Removed old cache: {old_cache}")
+                except:
+                    pass
+
         # Send the result
         await interaction.followup.send(
             f'"hey {member.mention}" and they\'re boiled 😭😭😭😭',
@@ -338,7 +378,7 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
             pass
 
     except Exception as e:
-        await interaction.followup.send(f"❌ Error processing image: {str(e)}")
+        await interaction.followup.send(f"error processing image: {str(e)}")
         logger.error(f"Error: {e}")
 
 
@@ -349,6 +389,9 @@ if __name__ == "__main__":
         logger.warning(f"Please create or add your boiling water GIF with a green square (#00FF00)")
         logger.warning(f"The bot will still start, but the /boil command won't work until you add it.")
 
-
-    logger.info("Starting bot...")
-    bot.run(BOT_TOKEN)
+    if BOT_TOKEN == 'YOUR_BOT_TOKEN_HERE':
+        logger.error("⚠️  ERROR: Please set your bot token in the BOT_TOKEN variable!")
+        logger.error("Get your token from: https://discord.com/developers/applications")
+    else:
+        logger.info("Starting bot...")
+        bot.run(BOT_TOKEN)

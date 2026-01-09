@@ -10,6 +10,10 @@ __pycache__/
 # Jetbrains folder
 .idea
 
+# dir contents
+cache/*
+temp/*
+
 # Distribution / packaging
 .Python
 build/
@@ -133,6 +137,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.envrc
 
 # Spyder project settings
 .spyderproject
