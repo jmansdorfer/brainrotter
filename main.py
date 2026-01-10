@@ -237,6 +237,19 @@ async def on_ready():
             os.getenv('DISCORD_BOT_GUILD_ID_3'),
         ]
 
+        # Filter out None values and convert to integers
+        guild_ids = [int(gid) for gid in guild_ids if gid is not None and gid.strip()]
+
+        # Sync globally first for DMs (this makes commands available in DMs)
+        logger.info("Syncing commands globally for DM support...")
+        global_synced = await bot.tree.sync()
+        logger.info(f"Synced {len(global_synced)} command(s) globally")
+
+        if not guild_ids:
+            logger.warning("No guild IDs configured - only global sync performed")
+            return
+
+        # Also sync to specific guilds for instant availability in servers
         synced_count = 0
         for guild_id in guild_ids:
             guild = discord.Object(id=guild_id)
@@ -247,17 +260,21 @@ async def on_ready():
             synced_count += len(synced)
             logger.info(f"Synced {len(synced)} command(s) to guild {guild_id}")
 
-        logger.info(f"Total: Synced to {len(guild_ids)} guild(s)")
+        logger.info(f"Total: Synced globally + to {len(guild_ids)} guild(s)")
     except Exception as e:
         logger.error(f"Failed to sync commands: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
 
 
 @bot.tree.command(name='boil', description='Boil a user\'s profile picture!')
-@app_commands.describe(member='The user whose profile picture you want to boil (leave empty for yourself)')
-async def boil(interaction: discord.Interaction, member: discord.Member = None):
+@app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+@app_commands.describe(user='The user whose profile picture you want to boil (leave empty for yourself)')
+async def boil(interaction: discord.Interaction, user: discord.User = None):
     """
     Slash command to boil a user's profile picture.
     Usage: /boil @user or /boil (to boil your own avatar)
+    Works in servers, DMs, and group DMs!
     """
     # Check if template exists
     if not os.path.exists(TEMPLATE_PATH):
@@ -267,13 +284,13 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
         )
         return
 
-    # If no member specified, use the command author
-    if member is None:
-        member = interaction.user
+    # If no user specified, use the command author
+    if user is None:
+        user = interaction.user
 
     # Use display_name or global_name for logging to avoid discriminator issues
     requester_name = interaction.user.display_name or interaction.user.name
-    target_name = member.display_name or member.name
+    target_name = user.display_name or user.name
     logger.info(f"Boil request: {requester_name} wants to boil {target_name}'s avatar")
 
     # Defer the response since this might take a moment
@@ -285,8 +302,8 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
         os.makedirs('temp', exist_ok=True)
 
         # Get avatar hash for cache key
-        avatar_hash = member.display_avatar.key
-        cache_file = f'cache/{member.id}_{avatar_hash}.gif'
+        avatar_hash = user.display_avatar.key
+        cache_file = f'cache/{user.id}_{avatar_hash}.gif'
 
         # Check if cached version exists
         if os.path.exists(cache_file):
@@ -295,7 +312,7 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
             file_size_mb = file_size / (1024 * 1024)
 
             await interaction.followup.send(
-                f'"hey {member.mention}" and they\'re boiled 😭😭😭😭',
+                content=f'"hey {user.mention}" and they\'re boiled 😭😭😭😭',
                 file=discord.File(cache_file)
             )
             return
@@ -304,21 +321,21 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
         logger.info(f"No cache found, processing new avatar for {target_name}")
 
         # Get the user's avatar URL (highest quality)
-        avatar_url = member.display_avatar.url
+        avatar_url = user.display_avatar.url
         logger.info(f"Downloading avatar from: {avatar_url}")
 
         # Download the avatar
-        temp_input = f'temp/input_{interaction.user.id}_{member.id}.png'
-        temp_output = f'temp/output_{interaction.user.id}_{member.id}.gif'
+        temp_input = f'temp/input_{interaction.user.id}_{user.id}.png'
+        temp_output = f'temp/output_{interaction.user.id}_{user.id}.gif'
 
         # Save the avatar image
         try:
-            await member.display_avatar.save(temp_input)
+            await user.display_avatar.save(temp_input)
             avatar_size = os.path.getsize(temp_input)
             logger.info(f"Avatar downloaded: {avatar_size / 1024:.1f} KB")
         except Exception as e:
             logger.error(f"Failed to download avatar: {e}")
-            await interaction.followup.send(f"❌ Failed to download avatar: {e}", ephemeral=True)
+            await interaction.followup.send(f"❌ Failed to download avatar: {e}")
             return
 
         # Process the image (run in executor to avoid blocking)
@@ -338,8 +355,7 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
         if file_size_mb > 24:  # Leave some margin
             await interaction.followup.send(
                 f"❌ The output GIF is too large ({file_size_mb:.1f} MB)! "
-                f"Discord's limit is 25 MB. Please use a smaller/shorter template GIF.",
-                ephemeral=True
+                f"Discord's limit is 25 MB. Please use a smaller/shorter template GIF."
             )
             # Clean up
             try:
@@ -356,7 +372,7 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
 
         # Clean up old cached versions for this user (different avatar hashes)
         import glob
-        for old_cache in glob.glob(f'cache/{member.id}_*.gif'):
+        for old_cache in glob.glob(f'cache/{user.id}_*.gif'):
             if old_cache != cache_file:
                 try:
                     os.remove(old_cache)
@@ -366,7 +382,7 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
 
         # Send the result
         await interaction.followup.send(
-            f'"hey {member.mention}" and they\'re boiled 😭😭😭😭',
+            content=f'"hey {user.mention}" and they\'re boiled 😭😭😭😭',
             file=discord.File(temp_output)
         )
 
@@ -378,7 +394,7 @@ async def boil(interaction: discord.Interaction, member: discord.Member = None):
             pass
 
     except Exception as e:
-        await interaction.followup.send(f"error processing image: {str(e)}")
+        await interaction.followup.send(f"❌ Error processing image: {str(e)}")
         logger.error(f"Error: {e}")
 
 
