@@ -232,14 +232,9 @@ async def on_ready():
 
     # Sync slash commands to specific guilds for instant availability
     try:
-        guild_ids = [
-            os.getenv('DISCORD_BOT_GUILD_ID_1'),
-            os.getenv('DISCORD_BOT_GUILD_ID_2'),
-            os.getenv('DISCORD_BOT_GUILD_ID_3'),
-        ]
-
-        # Filter out None values and convert to integers
-        guild_ids = [int(gid) for gid in guild_ids if gid is not None and gid.strip()]
+        # Parse comma-separated guild IDs from env var (e.g., "123,456,789")
+        guild_ids_str = os.getenv('DISCORD_GUILD_IDS', '')
+        guild_ids = [int(gid.strip()) for gid in guild_ids_str.split(',') if gid.strip()]
 
         # Sync globally first for DMs (this makes commands available in DMs)
         logger.info("Syncing commands globally for DM support...")
