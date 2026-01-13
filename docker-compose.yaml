@@ -7,6 +7,6 @@ services:
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
     volumes:
-      - ./data/template_boiling.gif:/app/template_boiling.gif
+      - ./data:/app/data
       - ./temp:/app/temp
       - ./cache:/app/cache

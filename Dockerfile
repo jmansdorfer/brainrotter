@@ -9,7 +9,7 @@ RUN pip install uv
 # Copy project files
 COPY pyproject.toml .
 COPY src/main.py .
-COPY data/template_boiling.gif .
+COPY data/ .
 
 # Install dependencies using uv
 RUN uv pip install --system -r pyproject.toml

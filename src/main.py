@@ -24,8 +24,8 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 BOT_TOKEN = os.getenv('BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 
 # Path to your template GIF with green square
-TEMPLATE_PATH = 'template_boiling.gif'
-PET_GIF = 'boiler_pet.gif'
+TEMPLATE_PATH = os.path.join("data", "template_boiling.gif")
+PET_GIF = os.path.join("data", "boiler_pet.gif")
 
 
 def replace_green_square_in_gif(template_path, image_path, output_path,
