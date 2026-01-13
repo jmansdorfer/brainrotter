@@ -529,10 +529,11 @@ async def pet(interaction: discord.Interaction):
     Works in servers, DMs, and group DMs!
     """
     # Defer the response since this might take a moment
+    await interaction.response.defer()
 
     try:
         # Send the result
-        return interaction.followup.send(
+        await interaction.followup.send(
             content=f'"thanks for petting me 🥰" -boiler bot',
             file=discord.File(PET_GIF)
         )
