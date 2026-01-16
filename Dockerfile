@@ -8,14 +8,18 @@ RUN pip install uv
 
 # Copy project files
 COPY pyproject.toml .
-COPY src/main.py .
-COPY data/ .
 
 # Install dependencies using uv
-RUN uv pip install --system -r pyproject.toml
+RUN uv pip install --system --no-cache -r pyproject.toml
+
+# Copy application code
+COPY src/ ./src/
+
+# Copy templates (read-only data)
+COPY templates/ ./templates/
 
 # Create temp directory for bot operations
-RUN mkdir -p temp
+RUN mkdir -p /app/cache/boiler /app/cache/petter /app/temp
 
 # Run the bot
-CMD ["python", "main.py"]
+CMD ["python", "-m", "src.bot"]
