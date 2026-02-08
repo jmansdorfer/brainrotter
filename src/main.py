@@ -97,8 +97,8 @@ def replace_green_square_in_gif(template_path, image_path, output_path,
                 size = max_size
                 logger.info(f"Using max size for all frames: {size}")
 
-    # Resize the insert image to fit the detected max area (for fallback)
-    insert_image_resized = insert_image.resize(size, Image.Resampling.LANCZOS)
+    # Resize the insert image to fit the detected max area (for fallback)`
+    insert_image_resized = insert_image.resize(size, Image.Resampling.BILINEAR)
 
     # Keep original image for per-frame resizing
     insert_image_original = insert_image.copy()
@@ -150,7 +150,7 @@ def replace_green_square_in_gif(template_path, image_path, output_path,
             frame_with_insert = frame
 
         # Convert back to P mode (palette) for smaller file size, matching original GIF format
-        frame_with_insert = frame_with_insert.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=48)
+        frame_with_insert = frame_with_insert.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=60, dither=0)
 
         frames.append(frame_with_insert)
 
@@ -166,7 +166,7 @@ def replace_green_square_in_gif(template_path, image_path, output_path,
         loop=0,
         disposal=2,  # Clear frame before rendering next
         optimize=True,  # Enable optimization
-        colors=48  # Reduce color palette for smaller size
+        colors=60  # Reduce color palette for smaller size
     )
 
 
