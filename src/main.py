@@ -81,10 +81,8 @@ def replace_green_square_in_gif(template_path, image_path, output_path,
                         max_size = frame_size
 
         if best_frame is not None and max_green_pixels > 0:
-            logger.info(f"Found frame with {max_green_pixels} green pixels, max size: {max_size}")
             pos, sz = detect_green_area(best_frame, green_threshold)
         else:
-            logger.warning("No green pixels found in any frame!")
             pos, sz = (50, 50), (100, 100)
             max_size = (100, 100)
 
@@ -126,8 +124,6 @@ def replace_green_square_in_gif(template_path, image_path, output_path,
 
         # Count green pixels in this frame
         green_count = np.sum(green_mask)
-        if frame_num <= 3 or green_count > 0:  # Log first 3 frames and any with green
-            logger.info(f"Frame {frame_num}: Found {green_count} green pixels")
 
         # Detect position AND size for THIS specific frame from the mask
         if green_count > 0:
@@ -154,7 +150,7 @@ def replace_green_square_in_gif(template_path, image_path, output_path,
             frame_with_insert = frame
 
         # Convert back to P mode (palette) for smaller file size, matching original GIF format
-        frame_with_insert = frame_with_insert.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=64)
+        frame_with_insert = frame_with_insert.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=48)
 
         frames.append(frame_with_insert)
 
@@ -170,7 +166,7 @@ def replace_green_square_in_gif(template_path, image_path, output_path,
         loop=0,
         disposal=2,  # Clear frame before rendering next
         optimize=True,  # Enable optimization
-        colors=64  # Reduce color palette for smaller size
+        colors=48  # Reduce color palette for smaller size
     )
 
 
