@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 import os
 import shutil
+import sqlite3
 
 import discord
 import numpy as np
@@ -140,7 +141,13 @@ def replace_green_square_in_gif(
     )
 
 
-async def boiler(interaction:discord.Interaction, user:discord.User, boiler_template:Path, logger:logging.Logger):
+async def boiler(
+        interaction:discord.Interaction,
+        user:discord.User,
+        boiler_template:Path,
+        # boilboard_db:Path,
+        logger:logging.Logger
+):
     # If no user specified, use the command author
     if user is None:
         user = interaction.user
@@ -151,7 +158,7 @@ async def boiler(interaction:discord.Interaction, user:discord.User, boiler_temp
     logger.info(f"Boil request: {requester_name} wants to boil {target_name}'s avatar")
 
     # Defer the response since this might take a moment
-    await interaction.response.defer()
+    await interaction.response.defer() # type: ignore
 
     try:
         # Get avatar hash for cache key
@@ -211,7 +218,7 @@ async def boiler(interaction:discord.Interaction, user:discord.User, boiler_temp
             try:
                 os.remove(temp_input)
                 os.remove(temp_output)
-            except:
+            except FileNotFoundError or OSError:
                 pass
             return
 
@@ -224,7 +231,7 @@ async def boiler(interaction:discord.Interaction, user:discord.User, boiler_temp
                 try:
                     os.remove(old_cache)
                     logger.info(f"Removed old cache: {old_cache}")
-                except:
+                except FileNotFoundError or OSError:
                     pass
 
         # Send the result
@@ -233,11 +240,32 @@ async def boiler(interaction:discord.Interaction, user:discord.User, boiler_temp
             file=discord.File(temp_output)
         )
 
+        # # TODO: use user_id instead of name? how to covert?
+        # #       figure out how to render/embed tables in discord
+        # user_boiler = interaction.user.name
+        # if user_boiler != user.name:
+        #     con = sqlite3.connect(str(boilboard_db))
+        #     cur = con.cursor()
+        #
+        #     if interaction.guild_id is 0:
+        #         table_id = interaction.channel_id
+        #     else:
+        #         table_id = interaction.guild_id
+        #
+        #     cur.execute(
+        #         "CREATE TABLE IF NOT EXISTS ? (user_id int, user_name string, boiler int, boilee int)",
+        #                 (table_id,)
+        #                 )
+
+            # add 1 to user_boiler under boiler and total
+            # add 1 to user.name under boilee and total
+            # close db con
+
         # Clean up temp files
         try:
             os.remove(temp_input)
             os.remove(temp_output)
-        except:
+        except FileNotFoundError or OSError:
             pass
 
     except Exception as e:

@@ -2,9 +2,10 @@
 name = "boiler-bot"
 version = "1.0.0"
 description = "A Discord bot that boils user profile pictures"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "discord.py>=2.6.4",
-    "Pillow>=12.1.0",
     "numpy>=2.4.1",
+    "Pillow>=12.1.0",
+    "table2ascii>=1.1.3",
 ]
