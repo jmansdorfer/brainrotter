@@ -238,7 +238,7 @@ async def boiler(
         logger.info(f"Saved to cache: {cache_file}")
 
         # Clean up old cached versions for this user (different avatar hashes)
-        for old_cache in glob.glob(f'cache/{user.id}_*.gif'):
+        for old_cache in glob.glob(f'cache/boiler/{user.id}_*.gif'):
             if old_cache != cache_file:
                 try:
                     os.remove(old_cache)

@@ -13,7 +13,7 @@ from PIL import Image, ImageSequence, ImageFilter
 from PIL.Image import Palette
 
 
-def replace_green_square_in_gif(
+def replace_color_squares_in_gif(
         framemog_template: Path,
         image_path_mogger,
         image_path_moggee,
@@ -162,6 +162,9 @@ async def framemogger(
         # boilboard_db:Path,
         logger:logging.Logger
 ):
+    if user is None:
+        await interaction.followup.send(f"please enter a user to framemog 😤🔥")
+
     # Use display_name or global_name for logging to avoid discriminator issues
     requester_name = interaction.user.display_name or interaction.user.name
     target_name = user.display_name or user.name
@@ -181,7 +184,7 @@ async def framemogger(
             logger.info(f"Using cached GIF for {target_name} and {requester_name} (hash: {avatar_hash})")
 
             await interaction.followup.send(
-                content=f'{user.mention} ran into a frat leader at {interaction.guild.name} and got brutally frame mogged by them👀😂',
+                content=f'{user.mention} ran into a frat leader at {interaction.guild.name} and got brutally frame mogged by them 👀😂',
                 file=discord.File(cache_file)
             )
             return
@@ -216,7 +219,7 @@ async def framemogger(
 
         # Process the image (run in executor to avoid blocking)
         await asyncio.to_thread(
-            replace_green_square_in_gif,
+            replace_color_squares_in_gif,
             framemog_template,
             temp_input_mogger,
             temp_input_moggee,
@@ -246,7 +249,7 @@ async def framemogger(
         logger.info(f"Saved to cache: {cache_file}")
 
         # Clean up old cached versions for this user (different avatar hashes)
-        for old_cache in glob.glob(f'cache/{user.id}_*.gif'):
+        for old_cache in glob.glob(f'cache/framemog/{user.id}_*.gif'):
             if old_cache != cache_file:
                 try:
                     os.remove(old_cache)
@@ -256,7 +259,7 @@ async def framemogger(
 
         # Send the result
         await interaction.followup.send(
-            content=f'{user.mention} ran into a frat leader at {interaction.guild.name} and got brutally frame mogged by them👀😂',
+            content=f'{user.mention} ran into a frat leader at {interaction.guild.name} and got brutally frame mogged by them 👀😂',
             file=discord.File(temp_output)
         )
 
