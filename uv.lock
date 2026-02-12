@@ -165,14 +165,16 @@ dependencies = [
     { name = "numpy" },
     { name = "pathlib" },
     { name = "pillow" },
+    { name = "table2ascii" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "discord-py", specifier = ">=2.6.4" },
-    { name = "numpy", specifier = ">=2.4.2" },
-    { name = "pathlib", specifier = ">=1.0.1" },
-    { name = "pillow", specifier = ">=12.1.1" },
+    { name = "discord-py", specifier = "==2.6.4" },
+    { name = "numpy", specifier = "==2.4.2" },
+    { name = "pathlib", specifier = "==1.0.1" },
+    { name = "pillow", specifier = "==12.1.1" },
+    { name = "table2ascii", specifier = "==1.2.0" },
 ]
 
 [[package]]
@@ -535,6 +537,24 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/ef/3c6ecf8b317aa982f309835e8f96987466123c6e596646d4e6a1dfcd080f/propcache-0.4.1-cp314-cp314t-win_amd64.whl", hash = "sha256:990f6b3e2a27d683cb7602ed6c86f15ee6b43b1194736f9baaeb93d0016633b1", size = 46259, upload-time = "2025-10-08T19:48:34.226Z" },
     { url = "https://files.pythonhosted.org/packages/c4/2d/346e946d4951f37eca1e4f55be0f0174c52cd70720f84029b02f296f4a38/propcache-0.4.1-cp314-cp314t-win_arm64.whl", hash = "sha256:ecef2343af4cc68e05131e45024ba34f6095821988a9d0a02aa7c73fcc448aa9", size = 40428, upload-time = "2025-10-08T19:48:35.441Z" },
     { url = "https://files.pythonhosted.org/packages/5b/5a/bc7b4a4ef808fa59a816c17b20c4bef6884daebbdf627ff2a161da67da19/propcache-0.4.1-py3-none-any.whl", hash = "sha256:af2a6052aeb6cf17d3e46ee169099044fd8224cbaf75c76a2ef596e8163e2237", size = 13305, upload-time = "2025-10-08T19:49:00.792Z" },
+]
+
+[[package]]
+name = "table2ascii"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "wcwidth" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/36/a4/0d5d508de6900ea4bba6fdb76359f286451fa477893692b0444764f2ea15/table2ascii-1.2.0.tar.gz", hash = "sha256:ea59b7f0c9f34b3d7d3821e86f1c66f788a3dc06b09271bc67403636e571be7a", size = 28673, upload-time = "2026-02-03T23:55:18.831Z" }
+
+[[package]]
+name = "wcwidth"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/35/a2/8e3becb46433538a38726c948d3399905a4c7cabd0df578ede5dc51f0ec2/wcwidth-0.6.0.tar.gz", hash = "sha256:cdc4e4262d6ef9a1a57e018384cbeb1208d8abbc64176027e2c2455c81313159", size = 159684, upload-time = "2026-02-06T19:19:40.919Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/5a/199c59e0a824a3db2b89c5d2dade7ab5f9624dbf6448dc291b46d5ec94d3/wcwidth-0.6.0-py3-none-any.whl", hash = "sha256:1a3a1e510b553315f8e146c54764f4fb6264ffad731b3d78088cdb1478ffbdad", size = 94189, upload-time = "2026-02-06T19:19:39.646Z" },
 ]
 
 [[package]]

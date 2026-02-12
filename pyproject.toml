@@ -4,8 +4,9 @@ version = "1.0.0"
 description = "A Discord bot that boils user profile pictures"
 requires-python = ">=3.13"
 dependencies = [
-    "discord.py>=2.6.4",
-    "Pillow>=12.1.1",
-    "numpy>=2.4.2",
-    "pathlib>=1.0.1",
+    "discord.py==2.6.4",
+    "Pillow==12.1.1",
+    "numpy==2.4.2",
+    "pathlib==1.0.1",
+    "table2ascii==1.2.0",
 ]

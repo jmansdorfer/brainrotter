@@ -8,6 +8,5 @@ services:
       - BOT_TOKEN=${BOT_TOKEN}
       - DISCORD_BOT_GUILD_IDS=${DISCORD_BOT_GUILD_IDS}
     volumes:
-      - ./data:/app/data
-      - ./temp:/app/temp
+      - ./templates:/app/templates
       - ./cache:/app/cache
