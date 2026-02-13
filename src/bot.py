@@ -82,15 +82,15 @@ async def boil(interaction: discord.Interaction, user: discord.User = None):
 
 @bot.tree.command(name='framemog', description='Framemog a user')
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-@app_commands.describe(user='The user you framemog')
-async def boil(interaction: discord.Interaction, user: discord.User = None):
+@app_commands.describe(user='The user you framemog', location='The location of the framemog')
+async def boil(interaction: discord.Interaction, user: discord.User, location: str = None):
     """
     Slash command to framemog someone.
     Usage: /framemog @user
     Works in servers, DMs, and group DMs!
     """
 
-    await framemogger(interaction, user, FRAMEMOG_TEMPLATE, logger)
+    await framemogger(interaction, user, location, FRAMEMOG_TEMPLATE, logger)
     # await framemogger(interaction, user, BOILER_TEMPLATE, BOILBOARD_DB, logger)
 
 

@@ -5,7 +5,7 @@ from pathlib import Path
 import os
 import shutil
 import subprocess
-import sqlite3
+# import sqlite3
 
 import discord
 import numpy as np
@@ -18,7 +18,6 @@ def replace_color_squares_in_gif(
         image_path_mogger,
         image_path_moggee,
         output_path,
-        size=None,
         gifsicle_lossy=30,
         blur_radius=0.5,
         colors=256,
@@ -34,7 +33,6 @@ def replace_color_squares_in_gif(
         image_path_mogger: Path to image to insert into the purple square
         image_path_moggee: Path to image to insert into the green square
         output_path: Path to save output GIF
-        size: Optional tuple (width, height) for image size. If None, auto-detect from colored areas
         gifsicle_lossy: Lossy compression level for gifsicle (0-200, higher = smaller/lossier). Set to None to skip.
         blur_radius: Gaussian blur radius applied to the insert images to reduce compression-hostile detail. Set to 0 to skip.
         colors: Number of colors in the palette
@@ -158,12 +156,15 @@ def replace_color_squares_in_gif(
 async def framemogger(
         interaction:discord.Interaction,
         user:discord.User,
+        mog_location,
         framemog_template:Path,
         # boilboard_db:Path,
         logger:logging.Logger
 ):
-    if user is None:
-        await interaction.followup.send(f"please enter a user to framemog 😤🔥")
+    if mog_location is None and interaction.guild.name is None:
+        mog_location = "ASU"
+    elif mog_location is None and interaction.guild.name is not None:
+        mog_location = interaction.guild.name
 
     # Use display_name or global_name for logging to avoid discriminator issues
     requester_name = interaction.user.display_name or interaction.user.name
@@ -184,7 +185,7 @@ async def framemogger(
             logger.info(f"Using cached GIF for {target_name} and {requester_name} (hash: {avatar_hash})")
 
             await interaction.followup.send(
-                content=f'{user.mention} ran into a frat leader at {interaction.guild.name} and got brutally frame mogged by them 👀😂',
+                content=f'{user.mention} ran into a frat leader at {mog_location} and got brutally frame mogged by them 👀😂',
                 file=discord.File(cache_file)
             )
             return
@@ -259,7 +260,7 @@ async def framemogger(
 
         # Send the result
         await interaction.followup.send(
-            content=f'{user.mention} ran into a frat leader at {interaction.guild.name} and got brutally frame mogged by them 👀😂',
+            content=f'{user.mention} ran into a frat leader at {mog_location} and got brutally frame mogged by them 👀😂',
             file=discord.File(temp_output)
         )
 
