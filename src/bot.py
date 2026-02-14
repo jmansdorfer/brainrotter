@@ -38,7 +38,7 @@ coal_replied_messages = set()  # Track messages already replied to
 @bot.event
 async def on_ready():
     logger.info(f'{bot.user} has connected to Discord!')
-    logger.info(f'Bot is ready to boil images!')
+    logger.info(f'bot is ready to rot brains')
 
     # Sync slash commands to specific guilds for instant availability
     try:
@@ -115,6 +115,9 @@ async def boil(interaction: discord.Interaction, user: discord.User = None):
     Works in servers, DMs, and group DMs!
     """
 
+    # Defer the response since this might take a moment
+    await interaction.response.defer() # type: ignore
+
     await boiler(interaction, user, BOILER_TEMPLATE, logger)
     # await boiler(interaction, user, BOILER_TEMPLATE, BOILBOARD_DB, logger)
 
@@ -122,12 +125,15 @@ async def boil(interaction: discord.Interaction, user: discord.User = None):
 @bot.tree.command(name='framemog', description='Framemog a user')
 @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
 @app_commands.describe(user='The user you framemog', location='The location of the framemog')
-async def boil(interaction: discord.Interaction, user: discord.User, location: str = None):
+async def framemog(interaction: discord.Interaction, user: discord.User, location: str = None):
     """
     Slash command to framemog someone.
     Usage: /framemog @user
     Works in servers, DMs, and group DMs!
     """
+
+    # Defer the response since this might take a moment
+    await interaction.response.defer() # type: ignore
 
     await framemogger(interaction, user, location, FRAMEMOG_TEMPLATE, logger)
     # await framemogger(interaction, user, BOILER_TEMPLATE, BOILBOARD_DB, logger)

@@ -166,18 +166,29 @@ async def framemogger(
     elif mog_location is None and interaction.guild.name is not None:
         mog_location = interaction.guild.name
 
-    # Use display_name or global_name for logging to avoid discriminator issues
-    requester_name = interaction.user.display_name or interaction.user.name
-    target_name = user.display_name or user.name
-    logger.info(f"Framemog request: {requester_name} wants to framemog {target_name}'s avatar")
+    gotcha = False
+    caller = interaction.user
+    target = user
 
-    # Defer the response since this might take a moment
-    await interaction.response.defer() # type: ignore
+    if target.id == 1458922532093694012:
+        if random.choice([True, False]):
+            caller, target = target, caller
+            gotcha = True
+
+    if gotcha:
+        content = f"nice try {target.mention}, you can't framemog a CHAD jestermaxxing bot like me 🫵🤣"
+    else:
+        content = f'{target.mention} ran into a frat leader at {mog_location} and got brutally frame mogged by them 👀😂'
+
+    # Use display_name or global_name for logging to avoid discriminator issues
+    requester_name = caller.display_name or caller.name
+    target_name = target.display_name or target.name
+    logger.info(f"Framemog request: {requester_name} wants to framemog {target_name}'s avatar")
 
     try:
         # Get avatar hash for cache key
-        avatar_hash = user.display_avatar.key + "_" + interaction.user.display_avatar.key
-        user_ids = str(user.id) + "_" + str(interaction.user.id)
+        avatar_hash = target.display_avatar.key + "_" + caller.display_avatar.key
+        user_ids = str(target.id) + "_" + str(caller.id)
         cache_file = f'cache/framemog/{user_ids}_{avatar_hash}.gif'
 
         # Check if cached version exists
@@ -185,7 +196,7 @@ async def framemogger(
             logger.info(f"Using cached GIF for {target_name} and {requester_name} (hash: {avatar_hash})")
 
             await interaction.followup.send(
-                content=f'{user.mention} ran into a frat leader at {mog_location} and got brutally frame mogged by them 👀😂',
+                content=content,
                 file=discord.File(cache_file)
             )
             return
@@ -194,15 +205,15 @@ async def framemogger(
         logger.info(f"No cache found, processing new avatars for {target_name} and {requester_name}")
 
         # Get the user's avatar URL (highest quality)
-        avatar_url_mogger = user.display_avatar.url
-        avatar_url_moggee = interaction.user.display_avatar.url
+        avatar_url_mogger = target.display_avatar.url
+        avatar_url_moggee = caller.display_avatar.url
         logger.info(f"Downloading avatar from: {avatar_url_mogger}")
         logger.info(f"Downloading avatar from: {avatar_url_moggee}")
 
         # Download the avatar
-        temp_input_mogger = f'temp/input_{interaction.user.id}.png'
-        temp_input_moggee = f'temp/input_{user.id}.png'
-        temp_output = f'temp/output_{interaction.user.id}_{user.id}.gif'
+        temp_input_mogger = f'temp/input_{caller.id}.png'
+        temp_input_moggee = f'temp/input_{target.id}.png'
+        temp_output = f'temp/output_{caller.id}_{target.id}.gif'
 
         # Save the avatar image
         try:
@@ -260,7 +271,7 @@ async def framemogger(
 
         # Send the result
         await interaction.followup.send(
-            content=f'{user.mention} ran into a frat leader at {mog_location} and got brutally frame mogged by them 👀😂',
+            content=content,
             file=discord.File(temp_output)
         )
 

@@ -3,6 +3,7 @@ import glob
 import logging
 from pathlib import Path
 import os
+import random
 import shutil
 import subprocess
 import sqlite3
@@ -161,16 +162,23 @@ async def boiler(
         logger:logging.Logger
 ):
     # If no user specified, use the command author
+    gotcha = False
     if user is None:
         user = interaction.user
+    elif user.id == 1458922532093694012:
+        if random.choice([True, False]):
+            user = interaction.user
+            gotcha = True
+
+    if gotcha:
+        content = f"nice try {user.mention}, you cant boil me vro i'm the brainrotter 🫵🤣"
+    else:
+        content = f'"hey {user.mention}" and they\'re boiled 😭😭😭😭'
 
     # Use display_name or global_name for logging to avoid discriminator issues
     requester_name = interaction.user.display_name or interaction.user.name
     target_name = user.display_name or user.name
     logger.info(f"Boil request: {requester_name} wants to boil {target_name}'s avatar")
-
-    # Defer the response since this might take a moment
-    await interaction.response.defer() # type: ignore
 
     try:
         # Get avatar hash for cache key
@@ -182,7 +190,7 @@ async def boiler(
             logger.info(f"Using cached GIF for {target_name} (hash: {avatar_hash})")
 
             await interaction.followup.send(
-                content=f'"hey {user.mention}" and they\'re boiled 😭😭😭😭',
+                content=content,
                 file=discord.File(cache_file)
             )
             return
@@ -248,12 +256,14 @@ async def boiler(
 
         # Send the result
         await interaction.followup.send(
-            content=f'"hey {user.mention}" and they\'re boiled 😭😭😭😭',
+            content=content,
             file=discord.File(temp_output)
         )
 
         # # TODO: use user_id instead of name? how to covert?
         # #       figure out how to render/embed tables in discord
+        # # TODO: figure out table names since bot cant access guild id unless
+        # #       added to the server
         # user_boiler = interaction.user.name
         # if user_boiler != user.name:
         #     con = sqlite3.connect(str(boilboard_db))
