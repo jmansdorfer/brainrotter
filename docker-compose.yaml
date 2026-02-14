@@ -1,8 +1,8 @@
 ---
 services:
-  boilbot:
+  brainrotter:
     build: .
-    container_name: boiler-bot
+    container_name: brainrotter
     restart: unless-stopped
     environment:
       - BOT_TOKEN=${BOT_TOKEN}

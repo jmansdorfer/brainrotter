@@ -1,8 +1,8 @@
 [project]
-name = "boiler-bot"
+name = "brainrotter"
 version = "1.0.0"
-description = "A Discord bot that boils user profile pictures"
-requires-python = ">=3.13"
+description = "A Discord bot that has various brainrot related actions"
+requires-python = ">=3.14,<=3.15"
 dependencies = [
     "discord.py==2.6.4",
     "Pillow==12.1.1",

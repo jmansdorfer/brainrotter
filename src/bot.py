@@ -23,10 +23,17 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 BOT_TOKEN = os.getenv('BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 
 # Paths to template GIFs with green square
+COALTHROW_IMAGE = Path("/app/templates/coalthrow.png")
 BOILER_TEMPLATE = Path("/app/templates/boiler_template.gif")
 FRAMEMOG_TEMPLATE = Path("/app/templates/framemog_template.gif")
 PET_TEMPLATE = Path("/app/templates/pet_template.gif")
 # BOILBOARD_DB = Path("/app/databases/boilboard.db")
+
+# Coal reaction settings
+COAL_EMOJI = "coal"  # Replace with your custom coal emoji name if needed (e.g., "coal")
+COAL_THRESHOLD = 5
+coal_replied_messages = set()  # Track messages already replied to
+
 
 @bot.event
 async def on_ready():
@@ -63,6 +70,38 @@ async def on_ready():
         logger.info(f"Total: Synced globally + to {len(guild_ids)} guild(s)")
     except Exception as e:
         logger.error(f"Failed to sync commands: {e}")
+        logger.error(traceback.format_exc())
+
+
+@bot.event
+async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
+    """Watch for coal emoji reactions and reply when threshold is reached."""
+    # Check if the emoji matches the coal emoji
+    emoji_name = str(payload.emoji.name) if payload.emoji.name else ""
+    if emoji_name != COAL_EMOJI:
+        return
+
+    # Skip if we already replied to this message
+    if payload.message_id in coal_replied_messages:
+        return
+
+    try:
+        channel = bot.get_channel(payload.channel_id)
+        if channel is None:
+            channel = await bot.fetch_channel(payload.channel_id)
+
+        message = await channel.fetch_message(payload.message_id)
+
+        # Find the coal reaction and check its count
+        for reaction in message.reactions:
+            if str(reaction.emoji.name if hasattr(reaction.emoji, 'name') else reaction.emoji) == COAL_EMOJI:
+                if reaction.count >= COAL_THRESHOLD:
+                    coal_replied_messages.add(message.id)
+                    await message.reply(file=discord.File(COALTHROW_IMAGE))
+                    logger.info(f"Coal threshold reached on message {message.id} with {reaction.count} reactions")
+                break
+    except Exception as e:
+        logger.error(f"Error handling coal reaction: {e}")
         logger.error(traceback.format_exc())
 
 
