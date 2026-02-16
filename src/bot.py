@@ -134,7 +134,7 @@ async def framemog(interaction: discord.Interaction, user: discord.User, locatio
     await interaction.response.defer() # type: ignore
 
     await framemogger(interaction, user, location, FRAMEMOG_TEMPLATE, logger)
-    # await framemogger(interaction, user, BOILER_TEMPLATE, BOILBOARD_DB, logger)
+    # await framemogger(interaction, user, FRAMEMOG_TEMPLATE, _DB, logger)
 
 
 @bot.tree.command(name='pet', description='Pet a user\'s profile picture!')
@@ -146,11 +146,12 @@ async def pet(interaction: discord.Interaction):
     Usage: /pet @user or /pet (to pet the bot)
     Works in servers, DMs, and group DMs!
     """
-    # uncomment when function is done
-    # await petter(interaction, user, PET_TEMPLATE, logger)
 
     # Defer the response since this might take a moment
     await interaction.response.defer() # type: ignore
+
+    # uncomment when function is done
+    # await petter(interaction, user, PET_TEMPLATE, logger)
 
     try:
         # Send the result

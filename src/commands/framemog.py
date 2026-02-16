@@ -3,6 +3,7 @@ import glob
 import logging
 from pathlib import Path
 import os
+import random
 import shutil
 import subprocess
 # import sqlite3
@@ -217,11 +218,11 @@ async def framemogger(
 
         # Save the avatar image
         try:
-            await interaction.user.display_avatar.save(temp_input_mogger)
+            await caller.display_avatar.save(temp_input_mogger)
             avatar_size = os.path.getsize(temp_input_mogger)
             logger.info(f"Avatar downloaded: {avatar_size / 1024:.1f} KB")
 
-            await user.display_avatar.save(temp_input_moggee)
+            await target.display_avatar.save(temp_input_moggee)
             avatar_size = os.path.getsize(temp_input_moggee)
             logger.info(f"Avatar downloaded: {avatar_size / 1024:.1f} KB")
         except Exception as e:
@@ -261,7 +262,7 @@ async def framemogger(
         logger.info(f"Saved to cache: {cache_file}")
 
         # Clean up old cached versions for this user (different avatar hashes)
-        for old_cache in glob.glob(f'cache/framemog/{user.id}_*.gif'):
+        for old_cache in glob.glob(f'cache/framemog/{target.id}_*.gif'):
             if old_cache != cache_file:
                 try:
                     os.remove(old_cache)
