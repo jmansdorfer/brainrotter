@@ -19,5 +19,4 @@ COPY src/ ./src/
 # Copy templates (read-only data)
 COPY templates/ ./templates/
 
-# Run the bot
 CMD ["python", "-m", "src.bot"]
